@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
+import { CommunicationBoardPage } from '@/pages/CommunicationBoardPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { GradeCapturePage } from '@/pages/GradeCapturePage'
 import { InterviewFormPage } from '@/pages/InterviewFormPage'
@@ -88,6 +89,12 @@ export const router = createBrowserRouter([
             children: [{ path: 'usuarios', element: <UsersPage /> }],
           },
         ],
+      },
+      {
+        // UI-10: tablero de comunicación a pantalla completa — fuera de
+        // AppLayout (sin sidebar/navbar). Mismo gate de roles que pictogramas.
+        element: <ProtectedRoute roles={['ADMIN', 'DOCENTE']} />,
+        children: [{ path: 'tablero', element: <CommunicationBoardPage /> }],
       },
     ],
   },

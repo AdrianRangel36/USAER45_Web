@@ -59,6 +59,10 @@ export interface ArasaacPictogram {
   imageUrl: string
 }
 
+// Tonos de piel aceptados por GET /arasaac/search?skin= (espejo de
+// ARASAAC_SKINS en USAER45_Back; "assian" es la grafía de ARASAAC).
+export type ArasaacSkin = 'white' | 'black' | 'assian' | 'mulatto' | 'aztec'
+
 // Pictograma guardado por el usuario en el backend (modelo SavedPictogram;
 // los endpoints /pictograms/saved aún no están publicados en USAER45_Back).
 export interface SavedPictogram {

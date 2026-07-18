@@ -4,6 +4,7 @@ import {
   ClipboardList,
   Home,
   Image,
+  LayoutGrid,
   MessagesSquare,
   UserCog,
   Users,
@@ -30,5 +31,6 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ['ADMIN', 'DOCENTE'],
   },
   { to: '/pictogramas', label: 'Pictogramas', icon: Image, roles: ['ADMIN', 'DOCENTE'] },
+  { to: '/tablero', label: 'Tablero', icon: LayoutGrid, roles: ['ADMIN', 'DOCENTE'] },
   { to: '/usuarios', label: 'Usuarios', icon: UserCog, roles: ['ADMIN'] },
 ]
