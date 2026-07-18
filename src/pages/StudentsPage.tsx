@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -9,18 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { NEE_LABELS } from '@/lib/labels'
+import { useAuthStore } from '@/stores/auth.store'
 import { useStudentStore } from '@/stores/student.store'
-import type { NeeType } from '@/types'
-
-const NEE_LABELS: Record<NeeType, string> = {
-  DEFICIT_ATENCION: 'Déficit de atención',
-  DIFICULTAD_APRENDIZAJE: 'Dificultad de aprendizaje',
-  DISCAPACIDAD_INTELECTUAL: 'Discapacidad intelectual',
-  TRASTORNO_LENGUAJE: 'Trastorno del lenguaje',
-  OTRO: 'Otro',
-}
 
 export function StudentsPage() {
+  const navigate = useNavigate()
+  const hasRole = useAuthStore((state) => state.hasRole)
   const { students, loading, error, fetchStudents } = useStudentStore()
 
   useEffect(() => {
@@ -29,11 +26,18 @@ export function StudentsPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Alumnos</h1>
-        <p className="text-muted-foreground">
-          Alumnos atendidos por la unidad USAER 45J
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Alumnos</h1>
+          <p className="text-muted-foreground">
+            Alumnos atendidos por la unidad USAER 45J
+          </p>
+        </div>
+        {hasRole('ADMIN') && (
+          <Button onClick={() => navigate('/alumnos/nuevo')}>
+            Nuevo alumno
+          </Button>
+        )}
       </div>
 
       {loading && (
@@ -73,7 +77,11 @@ export function StudentsPage() {
               </TableRow>
             ) : (
               students.map((student) => (
-                <TableRow key={student.id}>
+                <TableRow
+                  key={student.id}
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/alumnos/${student.id}`)}
+                >
                   <TableCell className="font-medium">
                     {student.fullName}
                   </TableCell>

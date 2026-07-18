@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { pictogramImageUrl } from '@/lib/arasaac'
+import { PictogramCard } from '@/components/arasaac/PictogramCard'
 import { useArasaacStore } from '@/stores/arasaac.store'
 
 export function PictogramsPage() {
@@ -59,19 +58,7 @@ export function PictogramsPage() {
       {!loading && results.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
           {results.map((pictogram) => (
-            <Card key={pictogram._id} className="overflow-hidden py-0">
-              <CardContent className="p-2">
-                <img
-                  src={pictogramImageUrl(pictogram._id)}
-                  alt={pictogram.keywords[0]?.keyword ?? 'Pictograma'}
-                  loading="lazy"
-                  className="aspect-square w-full rounded-md bg-white object-contain"
-                />
-                <p className="mt-1 truncate text-center text-sm">
-                  {pictogram.keywords[0]?.keyword ?? pictogram._id}
-                </p>
-              </CardContent>
-            </Card>
+            <PictogramCard key={pictogram.id} pictogram={pictogram} />
           ))}
         </div>
       )}

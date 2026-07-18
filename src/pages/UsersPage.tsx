@@ -49,6 +49,15 @@ const EMPTY_FORM: NewUserForm = {
   role: 'DOCENTE',
 }
 
+// Espejo de UpdateUserDto (PATCH /users/:id): no admite password, ya que el
+// backend no expone un endpoint para restablecerla.
+interface EditUserForm {
+  name: string
+  email: string
+  role: Role
+  isActive: boolean
+}
+
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,13 +68,25 @@ export function UsersPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editForm, setEditForm] = useState<EditUserForm | null>(null)
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
+
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+
   useEffect(() => {
+    loadUsers()
+  }, [])
+
+  function loadUsers() {
+    setLoading(true)
     api
       .get<User[]>('/users')
       .then(({ data }) => setUsers(data))
       .catch((err) => setError(getApiErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [])
+  }
 
   function handleOpenChange(open: boolean) {
     setDialogOpen(open)
@@ -88,6 +109,68 @@ export function UsersPage() {
       setFormError(getApiErrorMessage(err))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  function openEdit(user: User) {
+    setEditingUser(user)
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive ?? true,
+    })
+    setEditError(null)
+  }
+
+  function closeEdit(open: boolean) {
+    if (!open) {
+      setEditingUser(null)
+      setEditForm(null)
+      setEditError(null)
+    }
+  }
+
+  async function handleEditSubmit(event: FormEvent) {
+    event.preventDefault()
+    if (!editingUser || !editForm) return
+    setEditSubmitting(true)
+    setEditError(null)
+    try {
+      const { data } = await api.patch<User>(
+        `/users/${editingUser.id}`,
+        editForm,
+      )
+      setUsers((prev) => prev.map((u) => (u.id === data.id ? data : u)))
+      closeEdit(false)
+      toast.success(`Usuario ${data.name} actualizado`)
+    } catch (err) {
+      setEditError(getApiErrorMessage(err))
+    } finally {
+      setEditSubmitting(false)
+    }
+  }
+
+  async function handleToggleActive(user: User) {
+    setTogglingId(user.id)
+    try {
+      if (user.isActive) {
+        await api.delete(`/users/${user.id}`)
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, isActive: false } : u)),
+        )
+        toast.success(`Usuario ${user.name} desactivado`)
+      } else {
+        const { data } = await api.patch<User>(`/users/${user.id}`, {
+          isActive: true,
+        })
+        setUsers((prev) => prev.map((u) => (u.id === data.id ? data : u)))
+        toast.success(`Usuario ${user.name} reactivado`)
+      }
+    } catch (err) {
+      toast.error(getApiErrorMessage(err))
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -210,6 +293,7 @@ export function UsersPage() {
               <TableHead>Correo</TableHead>
               <TableHead>Rol</TableHead>
               <TableHead>Estado</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,11 +309,104 @@ export function UsersPage() {
                     {user.isActive ? 'Activo' : 'Inactivo'}
                   </Badge>
                 </TableCell>
+                <TableCell className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEdit(user)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant={user.isActive ? 'destructive' : 'outline'}
+                    size="sm"
+                    disabled={togglingId === user.id}
+                    onClick={() => handleToggleActive(user)}
+                  >
+                    {user.isActive ? 'Desactivar' : 'Reactivar'}
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <Dialog
+        open={editingUser !== null}
+        onOpenChange={closeEdit}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar usuario</DialogTitle>
+            <DialogDescription>
+              La contraseña no puede modificarse desde aquí.
+            </DialogDescription>
+          </DialogHeader>
+          {editForm && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Nombre completo</Label>
+                <Input
+                  id="edit-name"
+                  required
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">Correo electrónico</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  required
+                  value={editForm.email}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, email: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">Rol</Label>
+                <Select
+                  value={editForm.role}
+                  onValueChange={(role) =>
+                    setEditForm({ ...editForm, role: role as Role })
+                  }
+                >
+                  <SelectTrigger id="edit-role" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DOCENTE">Docente</SelectItem>
+                    <SelectItem value="DIRECTIVO">Directivo(a)</SelectItem>
+                    <SelectItem value="ADMIN">Administrador(a)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {editError && (
+                <p className="text-sm text-destructive" role="alert">
+                  {editError}
+                </p>
+              )}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => closeEdit(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={editSubmitting}>
+                  {editSubmitting ? 'Guardando…' : 'Guardar cambios'}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

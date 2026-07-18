@@ -5,13 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { ROLE_LABELS } from '@/lib/labels'
 import { useAuthStore } from '@/stores/auth.store'
-
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Administrador(a)',
-  DOCENTE: 'Docente',
-  DIRECTIVO: 'Directivo(a)',
-}
 
 export function DashboardPage() {
   const user = useAuthStore((state) => state.user)
@@ -23,7 +18,7 @@ export function DashboardPage() {
           Hola, {user?.name ?? 'usuario'}
         </h1>
         <p className="text-muted-foreground">
-          Sesión iniciada como {ROLE_LABELS[user?.role ?? ''] ?? user?.role}
+          Sesión iniciada como {user ? ROLE_LABELS[user.role] : ''}
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -2,9 +2,9 @@ import { create } from 'zustand'
 import { api, getApiErrorMessage } from '@/lib/api'
 import type { CreateStudentInput, Student } from '@/types'
 
-// Sigue el contrato del modelo Student de USAER45_Back (prisma/schema.prisma).
-// El módulo /students del backend aún no está publicado; cuando exista,
-// estas acciones funcionarán sin cambios.
+// Sigue el contrato del módulo /students de USAER45_Back: el docente solo ve
+// sus propios alumnos (filtrado por el backend), y crear/editar/dar de baja
+// requiere rol ADMIN.
 
 interface StudentState {
   students: Student[]
