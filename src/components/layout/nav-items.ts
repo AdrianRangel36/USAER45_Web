@@ -1,10 +1,12 @@
 import type { LucideIcon } from 'lucide-react'
 import {
+  BarChart3,
   CalendarDays,
   ClipboardList,
   Home,
   Image,
   LayoutGrid,
+  Library,
   MessagesSquare,
   UserCog,
   Users,
@@ -31,6 +33,18 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ['ADMIN', 'DOCENTE'],
   },
   { to: '/pictogramas', label: 'Pictogramas', icon: Image, roles: ['ADMIN', 'DOCENTE'] },
+  {
+    to: '/materiales',
+    label: 'Materiales',
+    icon: Library,
+    roles: ['ADMIN', 'DOCENTE'],
+  },
   { to: '/tablero', label: 'Tablero', icon: LayoutGrid, roles: ['ADMIN', 'DOCENTE'] },
+  {
+    to: '/analitica',
+    label: 'Analítica',
+    icon: BarChart3,
+    roles: ['ADMIN', 'DIRECTIVO'],
+  },
   { to: '/usuarios', label: 'Usuarios', icon: UserCog, roles: ['ADMIN'] },
 ]
