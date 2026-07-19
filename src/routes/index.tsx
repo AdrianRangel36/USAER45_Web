@@ -1,10 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
+import { AnalyticsPage } from '@/pages/AnalyticsPage'
 import { CommunicationBoardPage } from '@/pages/CommunicationBoardPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { GradeCapturePage } from '@/pages/GradeCapturePage'
 import { InterviewFormPage } from '@/pages/InterviewFormPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { MaterialsPage } from '@/pages/MaterialsPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PictogramsPage } from '@/pages/PictogramsPage'
 import { RubricFormPage } from '@/pages/RubricFormPage'
@@ -55,7 +57,18 @@ export const router = createBrowserRouter([
           {
             // Solo docentes y administradores
             element: <ProtectedRoute roles={['ADMIN', 'DOCENTE']} />,
-            children: [{ path: 'pictogramas', element: <PictogramsPage /> }],
+            children: [
+              { path: 'pictogramas', element: <PictogramsPage /> },
+              // UI-11: biblioteca de materiales didácticos ARASAAC
+              { path: 'materiales', element: <MaterialsPage /> },
+            ],
+          },
+          {
+            // UI-13: dashboard analítico. GET /analytics/summary es público a
+            // todos los roles (lo usa el dashboard, UI-12), pero POST
+            // /analytics/comparison está restringido a ADMIN y DIRECTIVO.
+            element: <ProtectedRoute roles={['ADMIN', 'DIRECTIVO']} />,
+            children: [{ path: 'analitica', element: <AnalyticsPage /> }],
           },
           {
             // /sessions: solo ADMIN y DOCENTE (el docente ve solo las suyas)

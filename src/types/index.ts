@@ -186,3 +186,68 @@ export interface CreateInterviewInput {
   responses: Record<string, string>
   notes?: string
 }
+
+// ─── ARASAAC · Materiales didácticos (UI-11 / ARA-04) ───────────────────────
+// Resultado de búsqueda de materiales vía el proxy propio del backend
+// (GET /arasaac/materials/search?term=), que transforma la respuesta cruda de
+// ARASAAC y arma las URLs completas de miniatura y descarga.
+// NOTA: los endpoints /arasaac/materials/* son la tarea ARA-04 (aún por
+// publicar en USAER45_Back); este tipo define el contrato esperado.
+export interface ArasaacMaterial {
+  id: number
+  title: string
+  description?: string | null
+  authors?: string[]
+  downloads?: number | null
+  language?: string | null
+  thumbnailUrl?: string | null
+  screenshots?: string[]
+  // URL directa de descarga; si el backend no la incluye en la búsqueda, se
+  // resuelve con GET /arasaac/materials/:id (ver material.store.ts).
+  downloadUrl?: string | null
+}
+
+// ─── Analítica (UI-12 / UI-13) ──────────────────────────────────────────────
+// Contrato esperado del módulo /analytics de USAER45_Back (tareas ANL-*).
+// GET /analytics/summary — métricas generales del dashboard (todos los roles).
+export interface AnalyticsSummary {
+  totals: {
+    students: number
+    sessions: number
+    grades: number
+    behavioralRecords: number
+    techniques: number
+  }
+  gradesBySubject: { subject: Subject; average: number | null; count: number }[]
+  sessionsByTechnique: { technique: TechniqueCategory; count: number }[]
+  lastSessionDate?: string | null
+}
+
+// Promedio de una técnica en un período (para las gráficas de UI-13).
+export interface TechniqueAverage {
+  technique: TechniqueCategory
+  average: number | null // promedio de calificación 0–10
+  sessions: number
+  behaviorAverage: number | null // promedio conductual 1–4
+}
+
+// Punto de evolución por período: un promedio de calificación por técnica.
+export interface EvolutionPoint {
+  period: string
+  VISUAL: number | null
+  LUDICA: number | null
+  REPETICION: number | null
+}
+
+// POST /analytics/comparison — análisis comparativo por técnica (ADMIN/DIRECTIVO).
+// Body: { subject?: Subject } — sin subject, combina Lectura + Matemáticas.
+export interface TechniqueComparison {
+  subject: Subject | 'ALL'
+  byTechnique: TechniqueAverage[]
+  evolution: EvolutionPoint[]
+  bestTechnique?: TechniqueCategory | null
+}
+
+export interface ComparisonParams {
+  subject?: Subject
+}
