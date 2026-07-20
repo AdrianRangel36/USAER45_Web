@@ -3,6 +3,7 @@ import {
   BarChart3,
   CalendarDays,
   ClipboardList,
+  FileText,
   Home,
   Image,
   LayoutGrid,
@@ -45,6 +46,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Analítica',
     icon: BarChart3,
     roles: ['ADMIN', 'DIRECTIVO'],
+  },
+  {
+    to: '/reportes',
+    label: 'Reportes',
+    icon: FileText,
+    roles: ['ADMIN', 'DOCENTE'],
   },
   { to: '/usuarios', label: 'Usuarios', icon: UserCog, roles: ['ADMIN'] },
 ]

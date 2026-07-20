@@ -83,6 +83,21 @@ export const router = createBrowserRouter([
             ],
           },
           {
+            // UI-14: generación de reportes con vista previa PDF. Ruta con
+            // carga diferida: @react-pdf/renderer pesa ~1 MB minificado y
+            // solo se descarga al entrar a esta sección.
+            element: <ProtectedRoute roles={['ADMIN', 'DOCENTE']} />,
+            children: [
+              {
+                path: 'reportes',
+                lazy: () =>
+                  import('@/pages/ReportsPage').then((m) => ({
+                    Component: m.ReportsPage,
+                  })),
+              },
+            ],
+          },
+          {
             // Gate de solo frontend: RubricsController no tiene @Roles en el
             // backend (cualquier usuario autenticado podría llamarlo), pero
             // se restringe aquí a ADMIN/DOCENTE para no exponer captura de
