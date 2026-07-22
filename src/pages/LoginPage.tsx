@@ -39,7 +39,12 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
-        <CardHeader>
+        <CardHeader className="items-center justify-items-center gap-3 text-center">
+          <img
+            src="/usaer_icon.jpeg"
+            alt="Logo USAER 45J"
+            className="size-20 rounded-2xl object-cover shadow-sm ring-1 ring-black/5"
+          />
           <CardTitle>Sistema USAER 45J</CardTitle>
           <CardDescription>
             Inicia sesión con tu cuenta institucional

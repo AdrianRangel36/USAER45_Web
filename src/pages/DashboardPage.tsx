@@ -61,13 +61,20 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">
-          Hola, {user?.name ?? 'usuario'}
-        </h1>
-        <p className="text-muted-foreground">
-          Sesión iniciada como {user ? ROLE_LABELS[user.role] : ''}
-        </p>
+      <div className="flex items-center gap-3">
+        <img
+          src="/usaer_icon.jpeg"
+          alt=""
+          className="size-12 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-black/5"
+        />
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Hola, {user?.name ?? 'usuario'}
+          </h1>
+          <p className="text-muted-foreground">
+            Sesión iniciada como {user ? ROLE_LABELS[user.role] : ''}
+          </p>
+        </div>
       </div>
 
       {errorSummary && !loadingSummary && (

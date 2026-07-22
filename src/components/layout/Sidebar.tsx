@@ -22,9 +22,14 @@ export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
           collapsed && 'justify-center px-0',
         )}
       >
-        <span className="text-lg font-semibold">
-          {collapsed ? 'U45' : 'USAER 45J'}
-        </span>
+        <img
+          src="/usaer_icon.jpeg"
+          alt="Logo USAER 45J"
+          className="size-8 shrink-0 rounded-md object-cover"
+        />
+        {!collapsed && (
+          <span className="text-lg font-semibold">USAER 45J</span>
+        )}
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-2">
         {visibleItems.map((item) => {
