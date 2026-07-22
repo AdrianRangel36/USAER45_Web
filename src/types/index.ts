@@ -239,15 +239,55 @@ export interface EvolutionPoint {
   REPETICION: number | null
 }
 
+// ─── ANL-08: significancia estadística real (analytics-service) ─────────────
+// Espejo camelCase de la respuesta de POST /compute/comparison, ya mapeada
+// por el backend. Uno por materia; cuando el filtro es "Ambas" vienen dos.
+export interface AnovaResult {
+  groupsCompared: TechniqueCategory[]
+  fStatistic: number | null
+  pValue: number | null
+  significant: boolean
+}
+
+export interface PairwiseTTest {
+  techniqueA: TechniqueCategory
+  techniqueB: TechniqueCategory
+  nA: number
+  nB: number
+  tStatistic: number | null
+  pValue: number | null
+  significant: boolean
+}
+
+export interface CategorySampleSize {
+  technique: TechniqueCategory
+  n: number
+  included: boolean
+}
+
+export interface SubjectStatisticalAnalysis {
+  subject: Subject
+  sufficientData: boolean
+  anova: AnovaResult | null
+  pairwiseTTests: PairwiseTTest[]
+  categorySampleSizes: CategorySampleSize[]
+}
+
 // POST /analytics/comparison — análisis comparativo por técnica (ADMIN/DIRECTIVO).
-// Body: { subject?: Subject } — sin subject, combina Lectura + Matemáticas.
+// Body: { subject?: Subject; period?: string } — sin subject, combina Lectura + Matemáticas.
 export interface TechniqueComparison {
   subject: Subject | 'ALL'
   byTechnique: TechniqueAverage[]
   evolution: EvolutionPoint[]
   bestTechnique?: TechniqueCategory | null
+  // ANL-08: null cuando analytics-service no respondió (modo degradado); en
+  // ese caso byTechnique/bestTechnique siguen viniendo con el cálculo local
+  // de respaldo, pero sin ANOVA/t-tests.
+  statisticalAnalysis: SubjectStatisticalAnalysis[] | null
+  degraded: boolean
 }
 
 export interface ComparisonParams {
   subject?: Subject
+  period?: string
 }

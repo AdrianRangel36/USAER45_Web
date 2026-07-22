@@ -62,6 +62,15 @@ function fmt(value: number | null | undefined): string {
   return value === null || value === undefined ? '—' : value.toFixed(1)
 }
 
+function fmtP(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '—'
+  return value < 0.001 ? '< 0.001' : value.toFixed(3)
+}
+
+function fmtStat(value: number | null | undefined): string {
+  return value === null || value === undefined ? '—' : value.toFixed(2)
+}
+
 // Leyenda manual compartida: color → técnica, en orden fijo.
 function TechniqueLegend({ techniques }: { techniques: TechniqueCategory[] }) {
   return (
@@ -148,6 +157,14 @@ export function AnalyticsPage() {
       {errorComparison && !loadingComparison && (
         <p className="text-sm text-destructive" role="alert">
           {errorComparison}
+        </p>
+      )}
+
+      {!loadingComparison && comparison?.degraded && (
+        <p className="text-sm text-muted-foreground" role="status">
+          Aviso: el servicio de analítica avanzada no respondió; se muestran
+          promedios calculados localmente y el análisis de significancia no
+          está disponible por ahora.
         </p>
       )}
 
@@ -419,6 +436,103 @@ export function AnalyticsPage() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+
+          {/* ANL-08: significancia estadística (ANOVA + t-tests de Welch vía analytics-service) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Significancia estadística</CardTitle>
+              <CardDescription>
+                ANOVA de un factor y pruebas t de Welch pareadas entre Visual,
+                Lúdica y Repetición
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {comparison.statisticalAnalysis === null ? (
+                <p className="text-sm text-muted-foreground">
+                  El servicio de analítica no está disponible en este momento;
+                  no se puede calcular la significancia estadística.
+                </p>
+              ) : (
+                comparison.statisticalAnalysis.map((sa) => (
+                  <div key={sa.subject} className="space-y-3">
+                    {comparison.subject === 'ALL' && (
+                      <h3 className="text-sm font-medium">
+                        {SUBJECT_LABELS[sa.subject]}
+                      </h3>
+                    )}
+
+                    {!sa.sufficientData ? (
+                      <p className="text-sm text-muted-foreground">
+                        Datos insuficientes para la prueba estadística (se
+                        requieren al menos 2 registros en al menos 2 técnicas).
+                      </p>
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                          <span className="text-muted-foreground">ANOVA:</span>
+                          <span className="tabular-nums">
+                            F = {fmtStat(sa.anova?.fStatistic)}, p ={' '}
+                            {fmtP(sa.anova?.pValue)}
+                          </span>
+                          <Badge
+                            variant={
+                              sa.anova?.significant ? 'default' : 'outline'
+                            }
+                          >
+                            {sa.anova?.significant
+                              ? 'Significativo'
+                              : 'No significativo'}
+                          </Badge>
+                        </div>
+
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Comparación</TableHead>
+                              <TableHead className="text-right">n</TableHead>
+                              <TableHead className="text-right">t</TableHead>
+                              <TableHead className="text-right">p</TableHead>
+                              <TableHead className="text-right">
+                                ¿Significativo?
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {sa.pairwiseTTests.map((t) => (
+                              <TableRow key={`${t.techniqueA}-${t.techniqueB}`}>
+                                <TableCell>
+                                  {TECHNIQUE_CATEGORY_LABELS[t.techniqueA]} vs.{' '}
+                                  {TECHNIQUE_CATEGORY_LABELS[t.techniqueB]}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums">
+                                  {t.nA} / {t.nB}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums">
+                                  {fmtStat(t.tStatistic)}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums">
+                                  {fmtP(t.pValue)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Badge
+                                    variant={
+                                      t.significant ? 'default' : 'outline'
+                                    }
+                                  >
+                                    {t.significant ? 'Sí' : 'No'}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </>
