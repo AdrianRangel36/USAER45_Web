@@ -22,6 +22,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { NEE_LABELS } from '@/lib/labels'
 import { getApiErrorMessage } from '@/lib/api'
+import { cn } from '@/lib/utils'
 import { useStudentStore } from '@/stores/student.store'
 import type { CreateStudentInput, NeeType, Student, User } from '@/types'
 
@@ -85,6 +86,7 @@ export function StudentForm({
 
   const { formState } = form
   const submitError = formState.errors.root?.message
+  const isEditMode = mode === 'edit'
 
   async function onSubmit(values: StudentFormValues) {
     try {
@@ -127,12 +129,19 @@ export function StudentForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn(
+          isEditMode
+            ? 'grid max-h-[calc(100vh-9rem)] gap-3 overflow-y-auto pr-1 sm:grid-cols-2'
+            : 'space-y-4',
+        )}
+      >
         <FormField
           control={form.control}
           name="fullName"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className={cn(isEditMode && 'gap-1.5 sm:col-span-2')}>
               <FormLabel>Nombre completo</FormLabel>
               <FormControl>
                 <Input {...field} />
@@ -142,12 +151,12 @@ export function StudentForm({
           )}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className={cn('grid gap-4 sm:grid-cols-2', isEditMode && 'contents')}>
           <FormField
             control={form.control}
             name="birthDate"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={cn(isEditMode && 'gap-1.5')}>
                 <FormLabel>Fecha de nacimiento</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
@@ -160,7 +169,7 @@ export function StudentForm({
             control={form.control}
             name="grade"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={cn(isEditMode && 'gap-1.5')}>
                 <FormLabel>Grado</FormLabel>
                 <FormControl>
                   <Input placeholder="Ej. 3° A" {...field} />
@@ -175,7 +184,7 @@ export function StudentForm({
           control={form.control}
           name="neeType"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className={cn(isEditMode && 'gap-1.5')}>
               <FormLabel>Tipo de NEE</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -200,22 +209,22 @@ export function StudentForm({
           control={form.control}
           name="neeDescription"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className={cn(isEditMode && 'gap-1.5')}>
               <FormLabel>Descripción de la NEE (opcional)</FormLabel>
               <FormControl>
-                <Textarea rows={2} {...field} />
+                <Textarea rows={isEditMode ? 1 : 2} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className={cn('grid gap-4 sm:grid-cols-2', isEditMode && 'contents')}>
           <FormField
             control={form.control}
             name="tutorName"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={cn(isEditMode && 'gap-1.5')}>
                 <FormLabel>Nombre del tutor(a)</FormLabel>
                 <FormControl>
                   <Input {...field} />
@@ -228,7 +237,7 @@ export function StudentForm({
             control={form.control}
             name="tutorPhone"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={cn(isEditMode && 'gap-1.5')}>
                 <FormLabel>Teléfono del tutor(a) (opcional)</FormLabel>
                 <FormControl>
                   <Input {...field} />
@@ -243,7 +252,7 @@ export function StudentForm({
           control={form.control}
           name="teacherId"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className={cn(isEditMode && 'gap-1.5')}>
               <FormLabel>Docente asignado (opcional)</FormLabel>
               <Select
                 onValueChange={field.onChange}
@@ -267,7 +276,12 @@ export function StudentForm({
           )}
         />
 
-        <div className="space-y-3 rounded-md border p-3">
+        <div
+          className={cn(
+            'space-y-3 rounded-md border p-3',
+            isEditMode && 'space-y-2 p-2.5 sm:col-span-2',
+          )}
+        >
           <FormField
             control={form.control}
             name="consentSigned"
@@ -298,7 +312,7 @@ export function StudentForm({
             control={form.control}
             name="consentDate"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={cn(isEditMode && 'gap-1.5 sm:max-w-64')}>
                 <FormLabel>Fecha de firma del consentimiento</FormLabel>
                 <FormControl>
                   <Input type="date" disabled={mode === 'edit'} {...field} />
@@ -310,12 +324,15 @@ export function StudentForm({
         </div>
 
         {submitError && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className={cn('text-sm text-destructive', isEditMode && 'sm:col-span-2')}
+            role="alert"
+          >
             {submitError}
           </p>
         )}
 
-        <div className="flex justify-end gap-2">
+        <div className={cn('flex justify-end gap-2', isEditMode && 'sm:col-span-2')}>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
